@@ -30,12 +30,11 @@ public class InvoiceService {
         this.productRepository = productRepository;
     }
 
-    // -----------------------------
-    // POST /invoices
-    // -----------------------------
+
+
     public Invoice createInvoice(InvoiceRequestDTO dto) {
 
-        // Validate customer exists
+
         Customer customer = customerRepository.findById(dto.getCustomerId());
         if (customer == null) {
             throw new ResourceNotFoundException("Customer not found");
@@ -49,7 +48,7 @@ public class InvoiceService {
         double totalAmount = 0;
         double totalTax = 0;
 
-        // Loop through items in request
+
         for (InvoiceRequestDTO.InvoiceItemRequest itemDTO : dto.getItems()) {
 
             Product product = productRepository.findById(itemDTO.getProductId());
@@ -66,7 +65,7 @@ public class InvoiceService {
             double itemTotal = price * itemDTO.getQuantity();
             double tax = itemTotal * product.getGstPercentage() / 100;
 
-            // Reduce stock
+
             product.setStockQuantity(product.getStockQuantity() - itemDTO.getQuantity());
             productRepository.updateById(product.getProductId(), product);
 
@@ -85,7 +84,7 @@ public class InvoiceService {
             invoiceItems.add(invoiceItem);
         }
 
-        // Create invoice
+
         Invoice invoice = new Invoice();
         invoice.setInvoiceId(generateInvoiceId());
         invoice.setCustomer(customer);
@@ -95,20 +94,15 @@ public class InvoiceService {
         invoice.setDiscount(dto.getDiscount());
         invoice.setFinalAmount(totalAmount + totalTax - dto.getDiscount());
 
-        // Save in repository
         return invoiceRepository.createInvoice(invoice);
     }
 
-    // -----------------------------
-    // GET /invoices
-    // -----------------------------
+
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.getAllInvoices();
     }
 
-    // -----------------------------
-    // GET /invoices/{id}
-    // -----------------------------
+
     public Invoice getInvoiceById(Long id) {
         Invoice invoice = invoiceRepository.getInvoiceById(id);
         if (invoice == null) {
@@ -117,9 +111,7 @@ public class InvoiceService {
         return invoice;
     }
 
-    // -----------------------------
-    // GET /invoices/customer/{customerId}
-    // -----------------------------
+
     public List<Invoice> getInvoicesByCustomer(int customerId) {
         Customer customer = customerRepository.findById(customerId);
         if (customer == null) {
@@ -136,9 +128,6 @@ public class InvoiceService {
         return customerInvoices;
     }
 
-    // -----------------------------
-    // Auto-generate invoice ID
-    // -----------------------------
     private long generateInvoiceId() {
         return invoiceRepository.getAllInvoices().size() + 1L;
     }
