@@ -40,34 +40,34 @@ public class CustomerController {
         return new ResponseEntity<>(service.findByid(id),HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
-    public String deleteById(@PathVariable int id){
-        try
-        {
-            service.deleteById(id);
-            return "deleted Successfully";
-        }catch (ResourceNotFoundException e) {
-            return "Fail to delete";
-
-        }
-
-    }
-    @PutMapping("{id}")
-    public ResponseEntity<Customer> updateById(@PathVariable int id,@RequestBody Customer c){
-        try{
-
-            return ResponseEntity.ok(service.updateCustomer(id,c));
-        } catch (ResourceNotFoundException e) {
-
-            return ResponseEntity.notFound().build();
-        }
-
-    }
-
-    @GetMapping("/search/{name}")
-    public List<Customer> searchByName(@PathVariable String name) throws ResourceNotFoundException {
-        return service.searchByName(name);
-    }
+//    @DeleteMapping("{id}")
+//    public String deleteById(@PathVariable int id){
+//        try
+//        {
+//            service.deleteById(id);
+//            return "deleted Successfully";
+//        }catch (ResourceNotFoundException e) {
+//            return "Fail to delete";
+//
+//        }
+//
+//    }
+//    @PutMapping("{id}")
+//    public ResponseEntity<Customer> updateById(@PathVariable int id,@RequestBody Customer c){
+//        try{
+//
+//            return ResponseEntity.ok(service.updateCustomer(id,c));
+//        } catch (ResourceNotFoundException e) {
+//
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//    }
+//
+//    @GetMapping("/search/{name}")
+//    public List<Customer> searchByName(@PathVariable String name) throws ResourceNotFoundException {
+//        return service.searchByName(name);
+//    }
 
     //function for filter the min and max price
 //    @GetMapping("/filter")

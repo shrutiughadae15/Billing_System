@@ -64,22 +64,22 @@ public class ProductController {
 
     }
 
-    @GetMapping("/search/{name}")
-    public List<Product> searchByName(@PathVariable String name) throws ResourceNotFoundException {
-        return service.searchByName(name);
-    }
+//    @GetMapping("/search/{name}")
+//    public List<Product> searchByName(@PathVariable String name) throws ResourceNotFoundException {
+//        return service.searchByName(name);
+//    }
 
     //function for filter the min and max price
-    @GetMapping("/filter")
-    public List<Product> filterProduct(@RequestParam int min,
-                                           @RequestParam int max) {
-        return service.filterByPrice(min, max);
-    }
+//    @GetMapping("/filter")
+//    public List<Product> filterProduct(@RequestParam int min,
+//                                           @RequestParam int max) {
+//        return service.filterByPrice(min, max);
+//    }
 
 
-    @GetMapping("/{search}")
-    public List<Product> search(){
-        return service.getAllProduct();
-
-    }
+//    @GetMapping("/{search}")
+//    public List<Product> search(){
+//        return service.getAllProduct();
+//
+//    }
 }

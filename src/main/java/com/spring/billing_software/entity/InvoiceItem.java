@@ -1,77 +1,28 @@
 package com.spring.billing_software.entity;
 
 public class InvoiceItem {
-
-    private Long id;
-    private String product;
+    private Product product;
     private int quantity;
     private double price;
     private double taxAmount;
+    private double discount;
     private double total;
 
-    // Default Constructor
-    public InvoiceItem() {}
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
 
-    // Parameterized Constructor
-    public InvoiceItem(Long id, String product, int quantity, double price, double taxAmount) {
-        this.id = id;
-        this.product = product;
-        this.quantity = quantity;
-        this.price = price;
-        this.taxAmount = taxAmount;
-        calculateTotal();
-    }
+    public int getQuantity() { return quantity; }
+    public void setQuantity(int quantity) { this.quantity = quantity; }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    public double getPrice() { return price; }
+    public void setPrice(double price) { this.price = price; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public double getTaxAmount() { return taxAmount; }
+    public void setTaxAmount(double taxAmount) { this.taxAmount = taxAmount; }
 
-    public String getProduct() {
-        return product;
-    }
+    public double getDiscount() { return discount; }
+    public void setDiscount(double discount) { this.discount = discount; }
 
-    public void setProduct(String product) {
-        this.product = product;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-        calculateTotal();
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-        calculateTotal();
-    }
-
-    public double getTaxAmount() {
-        return taxAmount;
-    }
-
-    public void setTaxAmount(double taxAmount) {
-        this.taxAmount = taxAmount;
-        calculateTotal();
-    }
-
-    public double getTotal() {
-        return total;
-    }
-
-    // Business Logic
-    private void calculateTotal() {
-        this.total = (price * quantity) + taxAmount;
-    }
+    public double getTotal() { return total; }
+    public void setTotal(double total) { this.total = total; }
 }

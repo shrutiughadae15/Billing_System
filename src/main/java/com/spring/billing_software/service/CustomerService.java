@@ -1,6 +1,6 @@
 package com.spring.billing_software.service;
 import com.spring.billing_software.entity.Customer;
-import com.spring.billing_software.exception.ResourceNotFoundException;
+//import com.spring.billing_software.exception.ResourceNotFoundException;
 import com.spring.billing_software.repository.CustomerRepository;
 
 import org.springframework.stereotype.Service;
@@ -43,30 +43,30 @@ public class CustomerService {
     }
 
 
-    public boolean deleteById(int id) {
-        try {
-            repository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            throw e;
+//    public boolean deleteById(int id) {
+//        try {
+//            repository.deleteById(id);
+//            return true;
+//        } catch (Exception e) {
+//            throw e;
+//
+//        }
+//
+//    }
 
-        }
 
-    }
-
-
-    public Customer updateCustomer(int id, Customer customer) {
-        try
-        {
-            repository.updateById(id, customer);
-
-        }
-        catch (ResourceNotFoundException e)
-        {
-            throw e;
-        }
-        return customer;
-    }
+//    public Customer updateCustomer(int id, Customer customer) {
+//        try
+//        {
+//            repository.updateById(id, customer);
+//
+//        }
+//        catch (ResourceNotFoundException e)
+//        {
+//            throw e;
+//        }
+//        return customer;
+//    }
 
 
     public List<Customer> searchByName(String name) {
