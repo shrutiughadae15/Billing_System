@@ -1,67 +1,74 @@
 package com.spring.billing_software.repository;
-import com.spring.billing_software.exception.ResourceNotFoundException;
+
 import com.spring.billing_software.entity.Product;
+import com.spring.billing_software.exception.ResourceNotFoundException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class ProductRepository {
-    private final ArrayList<Product> list=new ArrayList<>();
 
+    private final JdbcTemplate jdbcTemplate;
 
-    public List<Product> findAll(){
-        return list;
+    public ProductRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Product findById(int id){
-        return list.stream().filter
-                (p->p.getProductId()== id).findFirst().orElse(null);
+    private final RowMapper<Product> rowMapper = (rs, rowNum) -> {
+        Product p = new Product();
+        p.setProductId(rs.getInt("product_id"));
+        p.setName(rs.getString("name"));
+        p.setPrice(rs.getDouble("price"));
+        p.setStockQuantity(rs.getInt("stock_quantity"));
+        p.setGstPercentage(rs.getDouble("gst_percentage"));
+        return p;
+    };
 
+    public List<Product> findAll() {
+        return jdbcTemplate.query("SELECT * FROM product", rowMapper);
     }
 
-    public void save(Product Product){
-        list.add(Product);
+    public Product findById(int id) {
+        List<Product> list = jdbcTemplate.query(
+                "SELECT * FROM product WHERE product_id = ?",
+                rowMapper,
+                id
+        );
+        return list.isEmpty() ? null : list.get(0);
     }
 
-    public void deleteById(int id ) {
-
-        //method 1
-
-//       for (int i =0;i<list.size();i++){
-//           if(list.get(i).getPid()==id){
-//               list.remove(i);
-//               break;
-//           }
-//       }
-
-
-        //method 2--collection framework function for List
-        list.removeIf(Product -> Product.getProductId()==id);
+    public void save(Product product) {
+        jdbcTemplate.update(
+                "INSERT INTO product (name, price, stock_quantity, gst_percentage) VALUES (?, ?, ?, ?, ?)",
+                product.getProductId(),
+                product.getName(),
+                product.getPrice(),
+                product.getStockQuantity(),
+                product.getGstPercentage()
+        );
     }
 
-    public boolean updateById(int id,Product product){
-        Product existingProduct=findById(id);
-        if(existingProduct!=null){
-            existingProduct.setName(product.getName());
-            existingProduct.setPrice(product.getPrice());
-            return true;
-        }else{
-            throw new ResourceNotFoundException("Product Not Fouund");
+    public void deleteById(int id) {
+        int rows = jdbcTemplate.update("DELETE FROM product WHERE product_id = ?", id);
+        if (rows == 0) {
+            throw new ResourceNotFoundException("Product not found");
         }
     }
 
-    public List<Product> searchByName(String name){
-        return list.stream()
-                .filter(p -> p.getName().equalsIgnoreCase(name))
-                .toList();
-
-    }
-
-    public List<Product> findByPriceBetween(int min, int max) {
-        return list.stream()
-                .filter(p -> p.getPrice() >= min && p.getPrice() <= max)
-                .collect(Collectors.toList());
+    public void updateById(int id, Product product) {
+        int rows = jdbcTemplate.update(
+                "UPDATE product SET name = ?, price = ?, stock_quantity = ?, gst_percentage = ? WHERE product_id = ?",
+                product.getName(),
+                product.getPrice(),
+                product.getStockQuantity(),
+                product.getGstPercentage(),
+                id
+        );
+        if (rows == 0) {
+            throw new ResourceNotFoundException("Product not found");
+        }
     }
 }

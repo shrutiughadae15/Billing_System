@@ -1,16 +1,14 @@
 package com.spring.billing_software.service;
 
 import com.spring.billing_software.dto.InvoiceRequestDTO;
-import com.spring.billing_software.entity.Customer;
-import com.spring.billing_software.entity.Invoice;
-import com.spring.billing_software.entity.InvoiceItem;
-import com.spring.billing_software.entity.Product;
+import com.spring.billing_software.entity.*;
 import com.spring.billing_software.exception.InsufficientStockException;
 import com.spring.billing_software.exception.ResourceNotFoundException;
 import com.spring.billing_software.repository.CustomerRepository;
 import com.spring.billing_software.repository.InvoiceRepository;
 import com.spring.billing_software.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,105 +28,81 @@ public class InvoiceService {
         this.productRepository = productRepository;
     }
 
-
-
+    @Transactional
     public Invoice createInvoice(InvoiceRequestDTO dto) {
-
 
         Customer customer = customerRepository.findById(dto.getCustomerId());
         if (customer == null) {
             throw new ResourceNotFoundException("Customer not found");
         }
 
-        if (dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new RuntimeException("Invoice must have at least one item");
-        }
-
-        List<InvoiceItem> invoiceItems = new ArrayList<>();
         double totalAmount = 0;
         double totalTax = 0;
+        List<InvoiceItem> items = new ArrayList<>();
 
+        for (InvoiceRequestDTO.InvoiceItemRequest req : dto.getItems()) {
 
-        for (InvoiceRequestDTO.InvoiceItemRequest itemDTO : dto.getItems()) {
-
-            Product product = productRepository.findById(itemDTO.getProductId());
+            Product product = productRepository.findById(req.getProductId());
             if (product == null) {
-                throw new ResourceNotFoundException("Product not found: ID " + itemDTO.getProductId());
+                throw new ResourceNotFoundException("Product not found");
             }
 
-            if (product.getStockQuantity() < itemDTO.getQuantity()) {
-                throw new InsufficientStockException("Insufficient stock for product: " + product.getName());
+            if (product.getStockQuantity() < req.getQuantity()) {
+                throw new InsufficientStockException("Insufficient stock");
             }
 
-            // Calculate price and tax
-            double price = product.getPrice();
-            double itemTotal = price * itemDTO.getQuantity();
+            double itemTotal = product.getPrice() * req.getQuantity();
             double tax = itemTotal * product.getGstPercentage() / 100;
 
-
-            product.setStockQuantity(product.getStockQuantity() - itemDTO.getQuantity());
+            product.setStockQuantity(product.getStockQuantity() - req.getQuantity());
             productRepository.updateById(product.getProductId(), product);
 
-            // Create invoice item
-            InvoiceItem invoiceItem = new InvoiceItem();
-            invoiceItem.setProduct(product);
-            invoiceItem.setQuantity(itemDTO.getQuantity());
-            invoiceItem.setPrice(price);
-            invoiceItem.setTaxAmount(tax);
-            invoiceItem.setDiscount(0); // optional
-            invoiceItem.setTotal(itemTotal + tax);
+            InvoiceItem item = new InvoiceItem();
+            item.setProduct(product);
+            item.setQuantity(req.getQuantity());
+            item.setPrice(product.getPrice());
+            item.setTaxAmount(tax);
+            item.setDiscount(0);
+            item.setTotal(itemTotal + tax);
 
+            items.add(item);
             totalAmount += itemTotal;
             totalTax += tax;
-
-            invoiceItems.add(invoiceItem);
         }
 
-
         Invoice invoice = new Invoice();
-        invoice.setInvoiceId(generateInvoiceId());
         invoice.setCustomer(customer);
-        invoice.setItems(invoiceItems);
+        invoice.setItems(items);
         invoice.setTotalAmount(totalAmount);
         invoice.setTotalTax(totalTax);
         invoice.setDiscount(dto.getDiscount());
         invoice.setFinalAmount(totalAmount + totalTax - dto.getDiscount());
 
-        return invoiceRepository.createInvoice(invoice);
-    }
+        long invoiceId = invoiceRepository.saveInvoice(invoice);
+        invoice.setInvoiceId(invoiceId);
 
+        invoiceRepository.saveInvoiceItems(invoiceId, items);
+
+        return invoice;
+    }
 
     public List<Invoice> getAllInvoices() {
-        return invoiceRepository.getAllInvoices();
+        return invoiceRepository.findAll();
     }
 
-
-    public Invoice getInvoiceById(Long id) {
-        Invoice invoice = invoiceRepository.getInvoiceById(id);
+    public Invoice getInvoiceById(long id) {
+        Invoice invoice = invoiceRepository.findById(id);
         if (invoice == null) {
-            throw new ResourceNotFoundException("Invoice not found: ID " + id);
+            throw new ResourceNotFoundException("Invoice not found");
         }
         return invoice;
     }
 
-
     public List<Invoice> getInvoicesByCustomer(int customerId) {
-        Customer customer = customerRepository.findById(customerId);
-        if (customer == null) {
-            throw new ResourceNotFoundException("Customer not found: ID " + customerId);
-        }
-
-        List<Invoice> allInvoices = invoiceRepository.getAllInvoices();
-        List<Invoice> customerInvoices = new ArrayList<>();
-        for (Invoice invoice : allInvoices) {
-            if (invoice.getCustomer().getCustomerId() == customerId) {
-                customerInvoices.add(invoice);
-            }
-        }
-        return customerInvoices;
+        return invoiceRepository.findByCustomerId(customerId);
     }
 
-    private long generateInvoiceId() {
-        return invoiceRepository.getAllInvoices().size() + 1L;
+    public void deleteInvoice(long id) {
+        invoiceRepository.deleteById(id);
     }
 }

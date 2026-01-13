@@ -8,15 +8,14 @@ public class Product {
     private double gstPercentage;
     private int stockQuantity;
 
-
     public Product() {}
 
-    public Product(int productId, String name, double price,int stockQuantity,double gstPercentage) {
+    public Product(int productId, String name, double price, double gstPercentage, int stockQuantity) {
         this.productId = productId;
         this.name = name;
         this.price = price;
-        this.stockQuantity=stockQuantity;
-        this.gstPercentage=gstPercentage;
+        this.gstPercentage = gstPercentage;
+        this.stockQuantity = stockQuantity;
     }
 
     public int getProductId() {
@@ -59,4 +58,3 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 }
-

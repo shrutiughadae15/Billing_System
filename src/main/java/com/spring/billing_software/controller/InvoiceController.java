@@ -2,6 +2,7 @@ package com.spring.billing_software.controller;
 
 import com.spring.billing_software.dto.InvoiceRequestDTO;
 import com.spring.billing_software.entity.Invoice;
+import com.spring.billing_software.entity.Product;
 import com.spring.billing_software.service.InvoiceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,51 +20,34 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    // -----------------------------
-    // POST /invoices
-    // -----------------------------
     @PostMapping
-    public ResponseEntity<Invoice> createInvoice(@RequestBody InvoiceRequestDTO dto) {
-        try {
-            Invoice invoice = invoiceService.createInvoice(dto);
-            return new ResponseEntity<>(invoice, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    public Invoice createInvoice(@RequestBody InvoiceRequestDTO dto) {
+        return invoiceService.createInvoice(dto);
     }
 
-    // -----------------------------
-    // GET /invoices
-    // -----------------------------
     @GetMapping
-    public ResponseEntity<List<Invoice>> getAllInvoices() {
-        List<Invoice> invoices = invoiceService.getAllInvoices();
-        return new ResponseEntity<>(invoices, HttpStatus.OK);
+    public ResponseEntity<List<Invoice>> getAll() {
+        try {
+            return new ResponseEntity<>(invoiceService.getAllInvoices(), HttpStatus.OK);
+        }                                // Get the List as response
+        catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    // -----------------------------
-    // GET /invoices/{id}
-    // -----------------------------
+
     @GetMapping("/{id}")
-    public ResponseEntity<Invoice> getInvoiceById(@PathVariable Long id) {
-        try {
-            Invoice invoice = invoiceService.getInvoiceById(id);
-            return new ResponseEntity<>(invoice, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public Invoice getInvoiceById(@PathVariable long id) {
+        return invoiceService.getInvoiceById(id);
     }
 
-    // -----------------------------
-    // GET /invoices/customer/{customerId}
-    // -----------------------------
     @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<Invoice>> getInvoicesByCustomer(@PathVariable int customerId) {
-        try {
-            List<Invoice> invoices = invoiceService.getInvoicesByCustomer(customerId);
-            return new ResponseEntity<>(invoices, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public List<Invoice> getInvoicesByCustomer(@PathVariable int customerId) {
+        return invoiceService.getInvoicesByCustomer(customerId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteInvoice(@PathVariable long id) {
+        invoiceService.deleteInvoice(id);
     }
 }

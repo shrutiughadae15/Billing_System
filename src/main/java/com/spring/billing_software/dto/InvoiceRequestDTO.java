@@ -1,5 +1,8 @@
 package com.spring.billing_software.dto;
 
+import com.spring.billing_software.entity.Customer;
+import com.spring.billing_software.entity.Invoice;
+
 import java.util.List;
 
 public class InvoiceRequestDTO {
@@ -41,3 +44,6 @@ public class InvoiceRequestDTO {
         public void setQuantity(int quantity) { this.quantity = quantity; }
     }
 }
+
+
+
