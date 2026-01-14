@@ -30,7 +30,7 @@ CREATE TABLE invoice_item (
                         tax_amount DECIMAL(10,2) DEFAULT 0.00,
                         total DECIMAL(10,2) AS (quantity * price + tax_amount) STORED,
                         FOREIGN KEY (invoice_id) REFERENCES invoice(invoice_id) ON DELETE CASCADE
-    );
+);
 CREATE TABLE product (
                          product_id INT PRIMARY KEY,
                          name VARCHAR(100),
